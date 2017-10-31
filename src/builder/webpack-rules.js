@@ -95,7 +95,7 @@ module.exports = function () {
 
     // Add support for loading fonts.
     rules.push({
-        test: /\.(woff2?|ttf|eot|svg|otf)$/,
+        test: /\.(woff2?|ttf|eot|otf)$/,
         loader: 'file-loader',
         options: {
             name: path => {
@@ -111,6 +111,13 @@ module.exports = function () {
             },
             publicPath: Config.resourceRoot
         }
+    });
+    
+    
+    // Add support for inline-SVGs
+    rules.push({
+        test: /\.svg$/,
+        loader: 'raw-loader',
     });
 
 
