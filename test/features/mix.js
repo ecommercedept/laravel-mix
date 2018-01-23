@@ -185,12 +185,31 @@ test.cb.serial('the kitchen sink', t => {
             "/js/another.js": "/js/another.js?id=d403c9f3f581bbcba8ba",
             "/js/app.js": "/js/app.js?id=8e880c67fe14b09f7d16",
             "/js/manifest.js": "/js/manifest.js?id=cb749444552d8c6b9881",
-            "/js/vendor.js": "/js/vendor.js?id=6cf1cdebd189feac7f99",
+            "/js/vendor.js": "/js/vendor.js?id=c661c10a14f50393f6c0",
             "/somewhere/app.js": "/somewhere/app.js?id=8e880c67fe14b09f7d16",
         }, readManifest());
     });
 });
 
+test.cb.serial('it resolves image- and font-urls and distinguishes between them even if we deal with svg', t => {
+    // Given we have a sass file that refers to ../font.svg, ../font/awesome.svg and to ../img/img.svg
+    mix.sass('test/fixtures/fake-app/resources/assets/sass/font-and-image.scss', 'css');
+    // When we compile it
+    compile(t, () => {
+        // Then we expect the css to be built
+        t.true(File.exists('test/fixtures/fake-app/public/css/font-and-image.css'));
+        // Along with the referred image in the images folder
+        t.true(File.exists('test/fixtures/fake-app/public/images/img.svg'));
+        // And the referred fonts in the fonts folder
+        t.true(File.exists('test/fixtures/fake-app/public/fonts/font.svg'));
+        t.true(File.exists('test/fixtures/fake-app/public/fonts/awesome.svg'));
+        // And we expect the image NOT to be in the fonts folder:
+        t.false(File.exists('test/fixtures/fake-app/public/fonts/img.svg'));
+        // And the fonts NOT to be in the image folder
+        t.false(File.exists('test/fixtures/fake-app/public/images/font.svg'));
+        t.false(File.exists('test/fixtures/fake-app/public/images/awesome.svg'));
+    });
+});
 
 
 function compile(t, callback) {

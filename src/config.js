@@ -52,6 +52,14 @@ module.exports = function () {
 
 
         /**
+         * Does the project require Preact support?
+         *
+         * @type {Boolean}
+         */
+        preact: false,
+
+
+        /**
          * Does the project require TypeScript support?
          *
          * @type {Boolean}
@@ -84,6 +92,16 @@ module.exports = function () {
 
 
         /**
+         * Hostname and port used for the hot reload module
+         *
+         * @type {Object}
+         */
+        hmrOptions: {
+            host: 'localhost',
+            port: '8080'
+        },
+
+        /**
          * PostCSS plugins to be applied to compiled CSS.
          *
          * See: https://github.com/postcss/postcss/blob/master/docs/plugins.md
@@ -92,6 +110,15 @@ module.exports = function () {
          */
         postCss: [],
 
+        /**
+         * Determine if we should enable autoprefixer by default.
+         *
+         * @type {Boolean}
+         */
+        autoprefixer: {
+            enabled: true,
+            options: {}
+        },
 
         /**
          * Determine if Mix should remove unused selectors from your CSS bundle.
@@ -113,7 +140,7 @@ module.exports = function () {
 
 
         /**
-         * Does the project require React support?
+         * Determine if we should enable cache busting.
          *
          * @type {Boolean}
          */
@@ -199,6 +226,10 @@ module.exports = function () {
                 }
             });
 
+            if (this.babelConfig) {
+                options = webpackMerge.smart(options, this.babelConfig);
+            }
+
             let defaultOptions = {
                 cacheDirectory: true,
                 presets: [
@@ -210,15 +241,26 @@ module.exports = function () {
                         }
                     }]
                 ],
-                plugins: ['transform-object-rest-spread']
+                plugins: [
+                    'transform-object-rest-spread',
+                    ['transform-runtime', {
+                        'polyfill': false,
+                        'helpers': false
+                    }]
+                ]
             };
 
             if (this.react) {
                 defaultOptions.presets.push('react');
             }
 
+            if (this.preact) {
+                defaultOptions.presets.push('preact');
+            }
+
             return webpackMerge.smart(defaultOptions, options);
         },
+
 
         /**
          * Determine if CSS url()s should be processed by Webpack.
@@ -238,6 +280,16 @@ module.exports = function () {
 
 
         /**
+        * File with global styles to be imported in every component.
+        *
+        * See: https://vue-loader.vuejs.org/en/configurations/pre-processors.html#loading-a-global-settings-file
+        *
+        * @type {string}
+        */
+        globalVueStyles: '',
+
+
+        /**
          * Uglify-specific settings for Webpack.
          *
          * See: https://github.com/mishoo/UglifyJS2#compressor-options
@@ -246,12 +298,13 @@ module.exports = function () {
          */
         uglify: {
             sourceMap: true,
-            compress: {
-                warnings: false,
-                drop_console: true,
-            },
-            output: {
-                comments: false
+            uglifyOptions: {
+                compress: {
+                    warnings: false
+                },
+                output: {
+                    comments: false
+                }
             }
         },
 
@@ -272,6 +325,14 @@ module.exports = function () {
          * @type {Object}
          */
         webpackConfig: {},
+
+
+        /**
+         * Custom Babel configuration to be merged with Mix's defaults.
+         *
+         * @type {Object}
+         */
+        babelConfig: {},
 
 
         /**

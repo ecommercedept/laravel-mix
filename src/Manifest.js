@@ -20,13 +20,13 @@ class Manifest {
      */
     get(file = null) {
         if (file) {
-            return path.join(
+            return path.posix.join(
                 Config.publicPath,
                 this.manifest[this.normalizePath(file)]
             );
         }
 
-        return this.manifest;
+        return sortObjectKeys(this.manifest);
     }
 
 
@@ -53,8 +53,10 @@ class Manifest {
      */
     hash(file) {
         let hash = new File(path.join(Config.publicPath, file)).version();
+        
+        let filePath = this.normalizePath(file);
 
-        this.manifest[file] = file + '?id=' + hash;
+        this.manifest[filePath] = filePath + '?id=' + hash;
 
         return this;
     }
@@ -121,9 +123,10 @@ class Manifest {
      * @param {string} filePath
      */
     normalizePath(filePath) {
-        filePath = filePath.replace(
-            new RegExp('^' +  Config.publicPath), ''
-        ).replace(/\\/g, '/');
+        if (Config.publicPath && filePath.startsWith(Config.publicPath)) {
+            filePath = filePath.substring(Config.publicPath.length);
+        }
+        filePath = filePath.replace(/\\/g, '/');
 
         if (! filePath.startsWith('/')) {
             filePath = '/' + filePath;

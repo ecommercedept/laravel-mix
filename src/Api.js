@@ -5,6 +5,7 @@ let VersionFilesTask = require('./tasks/VersionFilesTask');
 let webpack = require('webpack');
 let glob = require('glob');
 let _ = require('lodash');
+let path = require('path');
 
 class Api {
     /**
@@ -14,6 +15,10 @@ class Api {
      * @param {string} output
      */
     js(entry, output) {
+        if (typeof entry === 'string' && entry.includes('*')) {
+           entry = glob.sync(entry);
+        }
+
         Verify.js(entry, output);
 
         entry = [].concat(entry).map(file => new File(file));
@@ -35,6 +40,20 @@ class Api {
         Config.react = true;
 
         Verify.dependency('babel-preset-react', ['babel-preset-react']);
+
+        return this.js(entry, output);
+    };
+
+    /**
+     * Register support for the Preact framework.
+     *
+     * @param {string|Array} entry
+     * @param {string} output
+     */
+    preact(entry, output) {
+        Config.preact = true;
+
+        Verify.dependency('babel-preset-preact', ['babel-preset-preact']);
 
         return this.js(entry, output);
     };
@@ -360,9 +379,9 @@ class Api {
      * @param {Boolean} productionToo
      * @param {string}  type
      */
-    sourceMaps(productionToo = true, type = 'inline-source-map') {
+    sourceMaps(productionToo = true, type = 'eval-source-map') {
         if (Mix.inProduction()) {
-            type = productionToo ? 'cheap-source-map' : false;
+            type = productionToo ? 'source-map' : false;
         }
 
         Config.sourcemaps = type;
@@ -374,10 +393,10 @@ class Api {
     /**
      * Override the default path to your project's public directory.
      *
-     * @param {string} path
+     * @param {string} defaultPath
      */
-    setPublicPath(path) {
-        Config.publicPath = path;
+    setPublicPath(defaultPath) {
+        Config.publicPath = path.normalize(defaultPath.replace(/\/$/, ''));
 
         return this;
     }
@@ -444,8 +463,23 @@ class Api {
      * @param {object} config
      */
     webpackConfig(config) {
-        Config.webpackConfig = (typeof config == 'function') ? config(webpack) : config;
-        
+        config = (typeof config == 'function') ? config(webpack) : config;
+
+        Config.webpackConfig = require('webpack-merge').smart(
+            Config.webpackConfig, config
+        );
+
+        return this;
+    }
+
+    /**
+     * Merge custom Babel config with Mix's default.
+     *
+     * @param {object} config
+     */
+    babelConfig(config) {
+        Config.babelConfig = config;
+
         return this;
     }
 
