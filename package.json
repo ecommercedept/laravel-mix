@@ -48,7 +48,6 @@
     "fs-extra": "^3.0.1",
     "glob": "^7.1.2",
     "html-loader": "^0.4.5",
-    "img-loader": "^2.0.0",
     "lodash": "^4.17.4",
     "md5": "^2.2.1",
     "node-sass": "^4.7.2",
@@ -58,8 +57,6 @@
     "style-loader": "^0.18.2",
     "uglify-js": "^2.8.29",
     "uglifyjs-webpack-plugin": "^1.1.6",
-    "vue-loader": "^13.7.0",
-    "vue-template-compiler": "^2.5.13",
     "webpack": "^3.10.0",
     "webpack-chunk-hash": "^0.4.0",
     "webpack-dev-server": "^2.11.1",
@@ -73,8 +70,7 @@
     "mock-require": "^2.0.2",
     "nyc": "^10.3.2",
     "postcss-custom-properties": "^6.2.0",
-    "sinon": "^2.4.1",
-    "vue": "^2.5.13"
+    "sinon": "^2.4.1"
   },
   "engines": {
     "node": ">=6.0.0"
